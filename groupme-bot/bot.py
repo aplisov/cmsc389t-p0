@@ -1,3 +1,4 @@
+import random
 import requests
 import time
 import json
@@ -9,6 +10,7 @@ load_dotenv()
 BOT_ID = os.getenv("BOT_ID")
 GROUP_ID = os.getenv("GROUP_ID")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+GIPHY_API_KEY = os.getenv("GIPHY_API_KEY")
 LAST_MESSAGE_ID = None
 
 
@@ -73,6 +75,27 @@ def process_message(message):
                 (member["nickname"].split()[0] for member in members if member["user_id"] == sender_id), None)
             if first_name:
                 send_message(f"Good night, {first_name}!")
+        
+        if "what's the date" in text:
+            date = time.strftime("%m/%d/%Y")
+            send_message(f"The date is {date}.")
+        
+        if "show me a funny cat gif" in text:
+            response = requests.get(
+            "https://api.giphy.com/v1/gifs/search",
+            params={
+                "api_key": GIPHY_API_KEY,
+                "q": "funny cat",
+                "limit": 10
+            }
+        )
+
+            if response.status_code == 200:
+                gifs = response.json()['data']
+                randomGif = random.choice(gifs)
+                send_message(randomGif['url'])
+            else:
+                print("Failed to fetch GIFs")
 
         LAST_MESSAGE_ID = message["id"]
 
@@ -80,14 +103,14 @@ def process_message(message):
 def get_latest_group_message():
     """Retrieve the most recent message from the group."""
     params = {"token": ACCESS_TOKEN,
-              "limit": 1}  # Fetch only the most recent message
+              "limit": 1}
 
     get_url = f"https://api.groupme.com/v3/groups/{GROUP_ID}/messages"
     response = requests.get(get_url, params=params)
     if response.status_code == 200:
         messages = response.json().get("response", {}).get("messages", [])
         if messages:
-            return messages[0]  # Return the most recent message
+            return messages[0]
     return None
 
 

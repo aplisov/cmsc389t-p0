@@ -64,10 +64,10 @@ We have provided you with an outline of the bot in [`bot.py`](./groupme-bot/bot.
     - think about how you're going to stop your bot from responding to itself and the other bots in the chat
     - **caution:** if you start spamming the chat, please `ctrl+c` your script to stop it
     - feel free to mute the chat, we will use piazza for any important announcements
-- [ ] create 1 (or more, for extra-credit) additional features that you think would be cool
+- [x] create 1 (or more, for extra-credit) additional features that you think would be cool
   - you may incorporate other API's (i.e. [Giphy](https://developers.giphy.com/docs/api/endpoint#search))
   - you can have the bot perhaps have tell the weather of a particular city
-- [ ] create a doc (markdown, `*.md` file) that outlines the features of your bot, how to run it
+- [x] create a doc (markdown, `*.md` file) that outlines the features of your bot, how to run it
   - please put this file in the [`groupme-bot`](./groupme-bot) folder and name it `README.md`
   - refer to markdown syntax [here](https://www.markdownguide.org/basic-syntax/)
 
