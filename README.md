@@ -91,7 +91,6 @@ python3 bot.py
 
 as you complete tasks, edit **this** markdown file to reflect your progress. if you have completed something just put an "x" in the checkbox. here's an example:
 
-- [ ] respond to you (not done)
 - [x] respond to you (done)
 
 once you are done, commit your changes and push to your forked repo
