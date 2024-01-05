@@ -34,25 +34,70 @@ def get_group_messages(since_id=None):
     return []
 
 
+def get_group_members():
+    """Retrieve members of the group."""
+    params = {"token": ACCESS_TOKEN}
+    get_url = f"https://api.groupme.com/v3/groups/{GROUP_ID}"
+    response = requests.get(get_url, params=params)
+    if response.status_code == 200:
+        return response.json().get("response", {}).get("members", [])
+    return []
+
+
 def process_message(message):
     """Process and respond to a message."""
     global LAST_MESSAGE_ID
-    text = message["text"].lower()
 
-    # i.e. responding to a specific message (note that this checks if "hello bot" is anywhere in the message, not just the beginning)
-    if "hello bot" in text:
-        send_message("sup")
+    current_message_id = int(message["id"])
+    last_message_id = int(LAST_MESSAGE_ID) if LAST_MESSAGE_ID else 0
+    if current_message_id > last_message_id:
+        sender_id = message["sender_id"]
+        members = get_group_members()
+        text = message["text"].lower()
 
-    LAST_MESSAGE_ID = message["id"]
+        if message["sender_id"] == "67348090" and "hey bot" in text:
+            sender = next(
+                (member for member in members if member["user_id"] == sender_id), None)
+            if sender:
+                first_name = sender["nickname"].split()[0]
+                send_message(f"Hey, {first_name}!")
+
+        if "good morning" in text:
+            first_name = next(
+                (member["nickname"].split()[0] for member in members if member["user_id"] == sender_id), None)
+            if first_name:
+                send_message(f"Good morning, {first_name}!")
+
+        if "good night" in text:
+            first_name = next(
+                (member["nickname"].split()[0] for member in members if member["user_id"] == sender_id), None)
+            if first_name:
+                send_message(f"Good night, {first_name}!")
+
+        LAST_MESSAGE_ID = message["id"]
+
+
+def get_latest_group_message():
+    """Retrieve the most recent message from the group."""
+    params = {"token": ACCESS_TOKEN,
+              "limit": 1}  # Fetch only the most recent message
+
+    get_url = f"https://api.groupme.com/v3/groups/{GROUP_ID}/messages"
+    response = requests.get(get_url, params=params)
+    if response.status_code == 200:
+        messages = response.json().get("response", {}).get("messages", [])
+        if messages:
+            return messages[0]  # Return the most recent message
+    return None
 
 
 def main():
     global LAST_MESSAGE_ID
     # this is an infinite loop that will try to read (potentially) new messages every 10 seconds, but you can change this to run only once or whatever you want
     while True:
-        messages = get_group_messages(LAST_MESSAGE_ID)
-        for message in reversed(messages):
-            process_message(message)
+        latest_message = get_latest_group_message()
+        if latest_message:
+            process_message(latest_message)
         time.sleep(10)
 
 
